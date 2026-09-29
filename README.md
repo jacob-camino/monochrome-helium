@@ -1,4 +1,25 @@
-# helium-macos
+# Still
+
+A personal Helium fork with grayscale pages, an Ink dark theme, a left tab rail,
+and local website controls. Color is available through a hover/focus toggle.
+
+The first Mac executable is being built. Nothing has been installed or published
+as a Still browser release yet. Experimental on-device text classification is
+kept separate from the tested domain blocker.
+
+See [the current direction and status](STILL.md),
+[interactive interface studies](designs/index.html),
+[the native patches](still/patches/),
+[local site controls](still/blocking/README.md), and
+[text-model evaluation](still/text-filter/README.md).
+
+Still preserves Helium's sandbox, permissions, security-related build flags,
+and existing security checks. These are personal-fork changes, not a proposed
+contribution to Helium. The upstream macOS tooling and attribution follow.
+
+---
+
+## Upstream: helium-macos
 macOS packaging & development tooling for the
 [Helium Browser](https://github.com/imputnet/helium).
 

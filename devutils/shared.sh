@@ -40,6 +40,7 @@ prepare_sources() {
     --tree "$_main_repo" --platform-tree "$_root_dir" --chromium-tree "$_src_dir"
 
   helium_resources
+  python3 "$_root_dir/still/apply.py" --source "$_src_dir"
 }
 
 write_gn_args() {

@@ -1,0 +1,39 @@
+Still: use a distinct macOS app identity and default profile directory.
+
+Apply after Helium/mac patches and name substitution. Change only app product
+names, the bundle identifier, and the default profile-folder fallback. Preserve
+Helium author attribution, creator code, team ID, and signing/update validation.
+
+diff --git a/chrome/app/theme/chromium/BRANDING b/chrome/app/theme/chromium/BRANDING
+index a486e9b..8a9e29f 100644
+--- a/chrome/app/theme/chromium/BRANDING
++++ b/chrome/app/theme/chromium/BRANDING
+@@ -1,10 +1,10 @@
+ COMPANY_FULLNAME=The Helium Authors
+ COMPANY_SHORTNAME=The Helium Authors
+-PRODUCT_FULLNAME=Helium
+-PRODUCT_SHORTNAME=Helium
+-PRODUCT_INSTALLER_FULLNAME=Helium Installer
+-PRODUCT_INSTALLER_SHORTNAME=Helium Installer
++PRODUCT_FULLNAME=Still
++PRODUCT_SHORTNAME=Still
++PRODUCT_INSTALLER_FULLNAME=Still Installer
++PRODUCT_INSTALLER_SHORTNAME=Still Installer
+ COPYRIGHT=Copyright @LASTCHANGE_YEAR@ The Helium Authors. All rights reserved.
+-MAC_BUNDLE_ID=net.imput.helium
++MAC_BUNDLE_ID=com.jacobcamino.still
+ MAC_CREATOR_CODE=Cr24
+ MAC_TEAM_ID=S4Q33XPHB4
+diff --git a/chrome/common/chrome_paths_mac.mm b/chrome/common/chrome_paths_mac.mm
+index 04b5e17..d6631f7 100644
+--- a/chrome/common/chrome_paths_mac.mm
++++ b/chrome/common/chrome_paths_mac.mm
+@@ -32,7 +32,7 @@
+     product_dir_name = [product_dir_name_ns fileSystemRepresentation];
+ 
+     if (!product_dir_name) {
+-      product_dir_name = "net.imput.helium";
++      product_dir_name = "com.jacobcamino.still";
+     }
+ 
+     // Leaked, but the only caller initializes a static with this result, so it

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Still — quiet interface studies</title>
+<style>
+:root { color-scheme:dark; --page:#111; --surface:#191919; --float:#202020; --line:#303030; --text:#d4d4d4; --muted:#858585; --faint:#595959; }
+* { box-sizing:border-box; }
+body { margin:0; background:#181818; color:var(--text); font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+button,input { font:inherit; color:inherit; }
+button { cursor:pointer; }
+button:focus-visible,input:focus-visible { outline:1px solid #aaa; outline-offset:4px; }
+button { border:0; background:transparent; }
+button:hover { color:#eee; }
+svg { width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.3; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+.studio { max-width:1536px; margin:auto; padding:45px 52px 28px; }
+.mast { display:flex; justify-content:space-between; align-items:center; gap:24px; }
+.wordmark { display:flex; align-items:center; gap:10px; font-size:13px; letter-spacing:.02em; color:#aaa; }
+.wordmark .mark { width:18px; height:18px; border:1px solid #777; border-radius:50%; position:relative; }
+.wordmark .mark::after { content:""; position:absolute; width:6px; height:6px; border:1px solid #777; border-radius:50%; inset:5px; }
+.meta { font:11px ui-monospace,SFMono-Regular,monospace; color:#777; }
+.intro { display:flex; justify-content:space-between; align-items:flex-end; margin:53px 0 30px; gap:25px; }
+h1 { font-size:31px; font-weight:400; letter-spacing:-1px; line-height:1.2; margin:0 0 10px; }
+.intro p { color:#929292; margin:0; font-size:13px; }
+.studio-controls { display:flex; align-items:center; flex-wrap:wrap; gap:18px; }
+.segments { display:flex; padding:3px; border:1px solid #333; border-radius:6px; gap:2px; }
+.segments button { padding:5px 11px; font-size:11px; color:#939393; border-radius:3px; }
+.segments button.active { color:#ddd; background:#303030; }
+.compare-button { padding:8px 0; color:#aaa; font-size:12px; border-bottom:1px solid #555; }
+.studies { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px; }
+.study-top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:11px; }
+.study-top h2 { font-size:13px; font-weight:500; margin:0; letter-spacing:.01em; }
+.number { font:10px ui-monospace,SFMono-Regular,monospace; color:#6d6d6d; margin-right:9px; }
+.expand { color:#858585; font-size:11px; padding:4px 0 4px 12px; }
+.expand:hover { color:#eee; }
+.window { position:relative; height:468px; border:1px solid #383838; border-radius:9px; background:var(--page); overflow:hidden; isolation:isolate; }
+.window:focus-visible { outline:1px solid #888; outline-offset:4px; }
+.content { height:100%; overflow:auto; scrollbar-width:thin; scrollbar-color:#383838 transparent; padding:57px 30px 58px; filter:grayscale(1); }
+.window.page-color .content { filter:grayscale(0); }
+.article { max-width:570px; margin:0 auto; }
+.eyebrow { font-size:9px; text-transform:uppercase; letter-spacing:1.7px; color:#777; margin-bottom:24px; }
+.article h3 { font:normal 30px/1.17 Georgia,"Times New Roman",serif; letter-spacing:-.6px; color:#d2d2d2; margin:0 0 18px; }
+.article .byline { font-size:10px; color:#747474; margin:0 0 30px; }
+.article p { font:15px/1.8 Georgia,"Times New Roman",serif; color:#a7a7a7; margin:0 0 17px; }
+.article .rule { width:24px; height:1px; background:#424242; margin:28px 0; }
+.article .small { font:11px/1.6 -apple-system,BlinkMacSystemFont,sans-serif; color:#727272; }
+.article .eyebrow { color:#91a59c; }
+.field-scene { margin:23px 0 27px; }
+.field-scene .landscape { height:125px; border-radius:3px; overflow:hidden; position:relative; background:linear-gradient(176deg,#526b76 0%,#87958b 49%,#566d5d 50%,#384f45 72%,#293e36 100%); }
+.field-scene .landscape::before { content:""; position:absolute; right:17%; top:18%; width:28px; height:28px; border-radius:50%; background:#c4b48b; opacity:.85; }
+.field-scene .landscape::after { content:""; position:absolute; inset:42% -12% -50% 28%; background:#3e594b; transform:rotate(-15deg); border-radius:55% 50% 0 0; box-shadow:-170px 37px 0 8px #6d7151; }
+.field-scene figcaption { color:#8b9c8e; margin-top:8px; font-size:10px; }
+.article .note-accent { color:#b5ab8e; }
+.reading-list .topic { color:#a6bba8; }
+.reading-list li:nth-child(2) .topic { color:#9dafbe; }
+.reading-list li:nth-child(3) .topic { color:#baa390; }
+.reading-list { padding:0; list-style:none; margin:28px 0; }
+.reading-list li { padding:17px 0; border-top:1px solid #2a2a2a; font:16px/1.4 Georgia,serif; color:#bbb; }
+.reading-list small { display:block; color:#777; font:10px/1.6 -apple-system,sans-serif; margin-top:6px; }
+.new-tab { display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; gap:16px; }
+.new-tab .empty-line { width:22px; height:1px; background:#494949; }
+.new-tab button { color:#676767; font-size:12px; padding:12px; }
+.new-tab button:hover { color:#bbb; }
+.icon-button { display:inline-flex; align-items:center; justify-content:center; width:29px; height:29px; padding:0; color:#929292; border-radius:5px; }
+.icon-button:hover { color:#ddd; background:#ffffff09; }
+.top-trigger { position:absolute; top:0; left:0; right:0; height:20px; z-index:4; border-radius:0; }
+.top-trigger::after { content:""; display:block; height:2px; width:19px; background:#4b4b4b; position:absolute; top:7px; left:calc(50% - 9px); border-radius:1px; }
+.top-controls { position:absolute; top:7px; left:8px; right:8px; height:38px; padding:3px 6px; display:flex; align-items:center; gap:2px; background:var(--surface); border:1px solid var(--line); border-radius:6px; z-index:5; opacity:0; transform:translateY(-7px); pointer-events:none; transition:opacity .13s,transform .13s; }
+.window.revealed .top-controls,.top-controls:focus-within { opacity:1; transform:none; pointer-events:auto; }
+.address { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#999; text-align:center; font-size:10px; padding:7px 1px; }
+.tab-count { font:10px ui-monospace,monospace; border:1px solid #606060; border-radius:3px; height:15px; width:15px; display:inline-flex; align-items:center; justify-content:center; }
+.dock-controls { position:absolute; bottom:17px; left:50%; transform:translateX(-50%); max-width:calc(100% - 30px); display:flex; gap:3px; align-items:center; height:38px; padding:3px 6px; border:1px solid #373737; background:var(--float); border-radius:8px; z-index:5; box-shadow:0 4px 18px #0002; }
+.dock-controls .address { min-width:112px; padding:8px 8px; }
+.divider { width:1px; height:14px; background:#3c3c3c; margin:0 3px; }
+.rail { position:absolute; left:0; top:0; bottom:0; width:56px; border-right:1px solid #252525; background:#141414; display:flex; flex-direction:column; align-items:center; padding:12px 0 10px; gap:8px; z-index:5; }
+.rail button { height:44px; width:44px; flex-shrink:0; color:#747474; padding:0; font-size:13px; position:relative; border-radius:6px; display:flex; align-items:center; justify-content:center; }
+.rail button.active { color:#d7d7d7; background:#ffffff07; }
+.rail button.active::before { content:""; position:absolute; left:-5px; top:17px; width:2px; height:10px; background:#b0b0b0; border-radius:1px; }
+.rail button:hover { color:#ddd; background:#ffffff09; }
+.rail button:focus-visible { outline-offset:-3px; }
+.rail .rail-bottom { margin-top:auto; display:flex; flex-direction:column; gap:4px; }
+.rail .color-toggle { opacity:0; transition:opacity .12s; }
+.rail:hover .color-toggle,.rail:focus-within .color-toggle { opacity:1; }
+.rail .color-toggle[aria-pressed="true"] { color:#ddd; }
+.window[data-design="rail"] .content { padding-left:79px; padding-right:24px; }
+.rail .rail-menu { margin-bottom:8px; }
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; }
+.study-bottom { margin-top:17px; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+.study-bottom p { margin:0; font-size:12px; color:#959595; line-height:1.6; }
+.study-bottom .detail { margin-top:5px; color:#626262; font-size:11px; }
+.study-bottom .hint { color:#686868; font:10px/1.6 ui-monospace,monospace; white-space:nowrap; }
+.footer { display:flex; justify-content:space-between; gap:24px; border-top:1px solid #303030; margin-top:39px; padding-top:17px; color:#777; font-size:11px; }
+kbd { font:10px ui-monospace,monospace; color:#aaa; padding:1px 4px; border:1px solid #414141; border-radius:3px; }
+.footer span { display:flex; gap:7px; align-items:center; flex-wrap:wrap; }
+.modal { position:absolute; inset:0; z-index:10; display:none; align-items:flex-start; justify-content:center; padding:77px 18px 18px; background:#0005; }
+.modal.open { display:flex; }
+.palette { width:100%; max-width:430px; background:var(--float); border:1px solid #424242; border-radius:8px; padding:5px; box-shadow:0 12px 36px #0005; }
+.palette-input { display:flex; align-items:center; gap:9px; padding:9px 10px; border-bottom:1px solid #393939; margin-bottom:4px; color:#8a8a8a; }
+.palette input { background:transparent; border:0; min-width:0; width:100%; outline:none; font-size:12px; }
+.palette-option { display:flex; align-items:center; width:100%; gap:10px; padding:12px 10px; border-radius:4px; text-align:left; font-size:12px; color:#b4b4b4; }
+.palette-option:hover,.palette-option:focus-visible { background:#ffffff08; color:#e3e3e3; }
+.palette-option small { color:#6f6f6f; font:10px ui-monospace,monospace; margin-left:auto; }
+.palette .mini-label { display:flex; justify-content:space-between; font-size:9px; color:#757575; border-top:1px solid #393939; margin-top:4px; padding:9px 10px 5px; }
+.studies.focused { display:block; max-width:1110px; margin:0 auto; }
+.studies.focused .study:not(.selected) { display:none; }
+.studies.focused .window { height:min(65vh,700px); min-height:460px; }
+.studies.focused .content { padding:62px 65px 70px; }
+.studies.focused .article h3 { font-size:43px; }
+.studies.focused .article p { font-size:19px; line-height:1.85; }
+.studies.focused .article .eyebrow { margin-bottom:28px; }
+.studies.focused .window[data-design="rail"] .content { padding-left:121px; }
+.studies.focused .expand { display:none; }
+[hidden] { display:none !important; }
+body.charcoal { --page:#1b1b1b; --surface:#242424; --float:#282828; --line:#3a3a3a; }
+body.charcoal .rail { background:#1f1f1f; border-color:#303030; }
+body.charcoal .window { border-color:#454545; }
+@media(max-width:1000px) { .studio { padding:30px 25px; } .studies { gap:14px; } .content { padding-left:22px; padding-right:22px; } .article h3 { font-size:26px; } .window[data-design="rail"] .content { padding-left:74px; padding-right:16px; } .intro { align-items:flex-start; flex-direction:column; gap:22px; margin-top:35px; } .study-bottom .hint { display:none; } }
+@media(max-width:720px) { .studio { padding:25px 20px; } .mast .meta { display:none; } .studies { grid-template-columns:1fr; gap:33px; } .window { height:450px; } .content { padding:45px 33px; } .article { max-width:410px; } .footer { flex-direction:column; gap:12px; } .studies.focused .content { padding:48px 27px 65px; } .studies.focused .window[data-design="rail"] .content { padding-left:79px; } .studies.focused .article h3 { font-size:34px; } .studies.focused .article p { font-size:17px; } }
+@media(hover:none) { .rail .color-toggle { opacity:1; } }
+@media(prefers-reduced-motion:reduce) { * { transition:none !important; } }
+</style>
+</head>
+<body>
+<main class="studio">
+  <header class="mast"><div class="wordmark"><span class="mark" aria-hidden="true"></span> still</div><span class="meta">INTERFACE STUDIES · 01—03</span></header>
+  <section class="intro">
+    <div><h1>Margin, with room to breathe.</h1><p>Larger tabs at the edge. Hover the rail to bring back a little color.</p></div>
+    <div class="studio-controls">
+      <button class="compare-button" id="compare" hidden>← All three</button>
+      <div class="segments" aria-label="Example page"><button data-page="notes" class="active" aria-pressed="true">Reading</button><button data-page="blank" aria-pressed="false">New tab</button></div>
+      <div class="segments" aria-label="Surface tone"><button data-tone="ink" class="active" aria-pressed="true">Ink</button><button data-tone="charcoal" aria-pressed="false">Charcoal</button></div>
+    </div>
+  </section>
+  <section class="studies" aria-label="Browser design comparisons" id="studies"></section>
+  <footer class="footer"><span><kbd>/</kbd> opens navigation. <kbd>Esc</kbd> closes it. Color is off by default.</span><span>Interactive mockups · pages are simulated</span></footer>
+  <span class="sr-only" id="color-status" role="status" aria-live="polite"></span>
+</main>
+<script>
+const icons={back:'<path d="M10 4 5 8.5 10 13M5 8.5h10"/>',next:'<path d="m7 4 5 4.5-5 4.5M12 8.5H2"/>',plus:'<path d="M8.5 3v11M3 8.5h11"/>',search:'<circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 4 4"/>',menu:'<path d="M4 5h9M4 8.5h9M4 12h9"/>',close:'<path d="m4 4 9 9M13 4l-9 9"/>',tabs:'<rect x="3" y="5" width="10" height="9" rx="1.5"/><path d="M6 2h7.5A1.5 1.5 0 0 1 15 3.5V11"/>',color:'<circle cx="8.5" cy="8.5" r="5.5"/><path d="M8.5 3a5.5 5.5 0 0 1 0 11Z" fill="currentColor" stroke="none"/>'};
+const svg=n=>`<svg viewBox="0 0 17 17" aria-hidden="true">${icons[n]}</svg>`;
+const iconButton=(name,label,action)=>`<button class="icon-button" aria-label="${label}" title="${label}" data-action="${action}">${svg(name)}</button>`;
+const studies=[
+ {id:'clear',number:'01',name:'Clear',description:'Only the page. Everything else waits.',detail:'Hover along the top edge to reveal navigation.',hint:'controls on demand'},
+ {id:'pocket',number:'02',name:'Pocket',description:'A small place to come back to.',detail:'Navigation lives in one quiet, floating bar.',hint:'a visible anchor'},
+ {id:'rail',number:'03',name:'Margin',description:'Your open pages, at the edge.',detail:'Hover or focus the rail for the color toggle.',hint:'a little more room'}
+];
+const pages={
+ notes:{title:'Field notes',url:'notes.local / attention',letter:'N',html:`<article class="article"><div class="eyebrow">Field notes · No. 08</div><h3>A walk without<br>a destination.</h3><div class="byline">A small note for a slower afternoon</div><figure class="field-scene"><div class="landscape" role="img" aria-label="A muted blue sky and pale sun over green hills"></div><figcaption>The long way home · late September</figcaption></figure><p>I left the phone on the table and took the long way around the block. There was no route to finish, no distance to record.</p><p>A window was open. Someone was making dinner. <span class="note-accent">The trees had started to turn.</span></p><div class="rule"></div><p>For a little while, that was enough to look at.</p><p class="small">End of this note.</p></article>`},
+ library:{title:'Reading list',url:'library.local',letter:'R',html:`<article class="article"><div class="eyebrow">Saved for later</div><h3>A few things<br>to read.</h3><div class="byline">Three pages. No particular order.</div><ul class="reading-list"><li><span class="topic">The shape of a good day</span><small>Essay · 6 minutes</small></li><li><span class="topic">A house beside the water</span><small>Journal · 4 minutes</small></li><li><span class="topic">On doing one thing at a time</span><small>Notes · 3 minutes</small></li></ul><p class="small">A small, finite list.</p></article>`},
+ blank:{title:'New tab',url:'new tab',letter:'+',html:`<div class="new-tab"><span class="empty-line"></span><button data-action="navigate">Open a page</button></div>`}
+};
+const state={}; let activeStudy='rail'; let colorEnabled=false;
+function palette(){return `<div class="modal" role="dialog" aria-label="Open a page" aria-modal="true"><div class="palette"><label class="palette-input">${svg('search')}<input aria-label="Find an open page" placeholder="Go somewhere, or switch pages…" autocomplete="off" spellcheck="false"></label><div class="palette-options">${Object.entries(pages).map(([id,p])=>`<button class="palette-option" data-target="${id}"><span>${p.title}</span><small>${id==='blank'?'new':p.url.split(' / ')[0]}</small></button>`).join('')}</div><div class="mini-label"><span>OPEN PAGES</span><span>esc to close</span></div></div></div>`}
+function controls(id){
+ if(id==='clear') return `<button class="top-trigger" aria-label="Reveal browser controls" data-action="reveal"></button><div class="top-controls">${iconButton('back','Previous page','back')}<button class="address" data-action="navigate"></button>${iconButton('tabs','Switch pages','navigate')}${iconButton('plus','New tab','new')}</div>`;
+ if(id==='pocket') return `<div class="dock-controls">${iconButton('back','Previous page','back')}<span class="divider"></span><button class="address" data-action="navigate"></button><button class="icon-button" data-action="navigate" title="Switch pages" aria-label="Switch between three pages"><span class="tab-count">3</span></button></div>`;
+ return `<nav class="rail" aria-label="Open pages"><button class="rail-menu" data-action="navigate" aria-label="Open navigation">${svg('menu')}</button><button data-target="notes" title="Field notes" aria-label="Field notes">N</button><button data-target="library" title="Reading list" aria-label="Reading list">R</button><button data-target="blank" title="New tab" aria-label="New tab">${svg('plus')}</button><div class="rail-bottom"><button class="color-toggle" data-action="color" title="Show page color" aria-label="Page color" aria-pressed="false">${svg('color')}</button><button data-action="navigate" title="Find a page" aria-label="Find a page">${svg('search')}</button></div></nav>`;
+}
+document.querySelector('#studies').innerHTML=studies.map(s=>`<section class="study" data-study="${s.id}"><header class="study-top"><h2><span class="number">${s.number}</span>${s.name}</h2><button class="expand" data-expand="${s.id}">Try full size ↗</button></header><div class="window" data-design="${s.id}" tabindex="0" aria-label="${s.name} interactive browser mockup"><div class="content"></div>${controls(s.id)}${palette()}</div><div class="study-bottom"><div><p>${s.description}</p><p class="detail">${s.detail}</p></div><span class="hint">${s.hint}</span></div></section>`).join('');
+const windows=[...document.querySelectorAll('.window')];
+function toggleColor(){colorEnabled=!colorEnabled;windows.forEach(w=>w.classList.toggle('page-color',colorEnabled));document.querySelectorAll('.color-toggle').forEach(b=>{b.setAttribute('aria-pressed',String(colorEnabled));b.title=colorEnabled?'Use grayscale':'Show page color'});document.querySelector('#color-status').textContent=colorEnabled?'Page color on.':'Page color off. Grayscale restored.';}
+function setPage(id,page,record=true){const w=document.querySelector(`[data-design="${id}"]`);if(record && state[id].page!==page) state[id].history.push(state[id].page);state[id].page=page;w.querySelector('.content').innerHTML=pages[page].html;w.querySelector('.content').scrollTop=0;w.querySelectorAll('.address').forEach(x=>x.textContent=pages[page].url);w.querySelectorAll('.rail [data-target]').forEach(x=>{const selected=x.dataset.target===page;x.classList.toggle('active',selected);x.setAttribute('aria-current',selected?'page':'false')});}
+function openNavigation(id){activeStudy=id;const w=document.querySelector(`[data-design="${id}"]`);const m=w.querySelector('.modal');state[id].returnFocus=document.activeElement;m.classList.add('open');const input=m.querySelector('input');input.value='';m.querySelectorAll('.palette-option').forEach(x=>x.hidden=false);input.focus();}
+function closeNavigation(w){w.querySelector('.modal').classList.remove('open');const previous=state[w.dataset.design].returnFocus;if(previous && previous.isConnected) previous.focus();else w.focus();}
+windows.forEach(w=>{const id=w.dataset.design;state[id]={page:'notes',history:[]};setPage(id,'notes',false);w.addEventListener('mouseenter',()=>activeStudy=id);w.addEventListener('focusin',()=>activeStudy=id);w.addEventListener('mousemove',e=>{if(id==='clear' && e.clientY-w.getBoundingClientRect().top<22)w.classList.add('revealed')});w.addEventListener('mouseleave',()=>{if(!w.querySelector('.top-controls')?.contains(document.activeElement))w.classList.remove('revealed')});w.addEventListener('click',e=>{const target=e.target.closest('[data-target]');if(target){setPage(id,target.dataset.target);closeNavigation(w);return;}const action=e.target.closest('[data-action]')?.dataset.action;if(action==='navigate')openNavigation(id);if(action==='new')setPage(id,'blank');if(action==='reveal')w.classList.toggle('revealed');if(action==='back')setPage(id,state[id].history.pop()||'notes',false);if(e.target.classList.contains('modal'))closeNavigation(w)});w.querySelector('input').addEventListener('input',e=>w.querySelectorAll('.palette-option').forEach(b=>b.hidden=!b.textContent.toLowerCase().includes(e.target.value.toLowerCase())));w.querySelector('input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const first=[...w.querySelectorAll('.palette-option')].find(x=>!x.hidden);if(first)first.click()}});});
+function focusStudy(id,moveFocus=true){activeStudy=id;document.querySelector('#studies').classList.add('focused');document.querySelectorAll('.study').forEach(s=>s.classList.toggle('selected',s.dataset.study===id));document.querySelector('#compare').hidden=false;if(moveFocus)document.querySelector(`[data-design="${id}"]`).focus();}
+document.querySelectorAll('[data-expand]').forEach(b=>b.addEventListener('click',()=>focusStudy(b.dataset.expand)));
+document.querySelector('.color-toggle').addEventListener('click',toggleColor);
+document.querySelector('#compare').addEventListener('click',()=>{document.querySelector('#studies').classList.remove('focused');document.querySelector('#compare').hidden=true;});
+document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-page]').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',String(x===b))});windows.forEach(w=>setPage(w.dataset.design,b.dataset.page));}));
+document.querySelectorAll('[data-tone]').forEach(b=>b.addEventListener('click',()=>{document.body.classList.toggle('charcoal',b.dataset.tone==='charcoal');document.querySelectorAll('[data-tone]').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',String(x===b))})}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.modal.open').forEach(m=>closeNavigation(m.closest('.window')));windows.forEach(w=>w.classList.remove('revealed'));}if(e.key==='/' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)){e.preventDefault();openNavigation(activeStudy);}if(e.key==='Tab'){const modal=document.querySelector('.modal.open');if(modal){const elements=[...modal.querySelectorAll('input,button')].filter(x=>!x.hidden);const first=elements[0],last=elements.at(-1);if(e.shiftKey && document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey && document.activeElement===last){e.preventDefault();first.focus()}}}});
+focusStudy('rail',false);
+</script>
+</body>
+</html>
