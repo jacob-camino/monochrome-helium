@@ -1,0 +1,3 @@
+# Publish only; dry-run and tests use Python's standard library plus existing Node.js.
+# Includes conditional PutObject and explicit SDK checksum configuration.
+boto3==1.43.104

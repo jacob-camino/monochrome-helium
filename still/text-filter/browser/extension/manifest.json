@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Still Local Text — Experimental",
+  "version": "0.1.0",
+  "description": "Opt-in, offline text classification experiment. Does not block pages.",
+  "minimum_chrome_version": "116",
+  "permissions": ["offscreen", "storage", "activeTab", "scripting"],
+  "background": {"service_worker": "background.mjs", "type": "module"},
+  "action": {"default_popup": "panel.html", "default_title": "Test local page classification"},
+  "content_security_policy": {
+    "extension_pages": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none';"
+  }
+}

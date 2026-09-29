@@ -24,9 +24,9 @@ A personal Helium fork with grayscale rendering and a minimal, dark interface.
 - Host release files in Tigris object storage and serve a download page on
   `jacobalbertschmidt.com`, preserving the existing site as appropriate.
 
-The earlier Chromium compositor patch is superseded as the implementation
-direction. First evaluate existing UI layer grayscale APIs to keep the Helium
-diff small. All platforms need runtime rendering validation; none may be
+The earlier Chromium compositor patch is superseded. Still uses the existing
+Views layer grayscale filter, keeping changes in the browser UI. All platforms
+need runtime rendering validation; none may be
 advertised as complete yet. Any update/signing
 limitations in a personal distribution must be resolved or clearly surfaced
 before release, never silently addressed by disabling protection.
@@ -50,9 +50,11 @@ Command-Shift-L pins/unpins the top controls.
 ## Build status
 
 The earlier Chromium-only build was stopped when the base changed to Helium.
-Helium source preparation targets Chromium 154.0.8037.57. No Still executable
-has been built or installed yet. The default browser has not been changed. Cross-platform builds and
-deployment are pending; no release downloads have been published.
+The Mac release build is compiling Chromium 154.0.8037.57 with Helium's original
+release flags. No Still executable has been built or installed yet, and the
+default browser has not been changed. Linux and Windows source integration is
+being prepared. The download page and Tigris publisher are implemented locally;
+no release downloads have been published.
 
 ## Local website filtering
 
@@ -70,12 +72,16 @@ model output to edit domain rules. Decisions apply to individual pages, not a
 permanent ban of an entire mixed-content domain. Keep form inputs out of samples,
 and do not retain page text, transmit it, or sync it.
 
-Model choice is pending a measured comparison. Tiny generative models are
-larger than specialized classifiers; promising candidates are SmolLM2-135M and
-Qwen3.5-0.8B. Headline general benchmarks do not establish porn-filter accuracy.
+The isolated [text experiment](still/text-filter/README.md) compared
+SmolLM2-135M and Qwen3.5-0.8B. Qwen matched 28 of 32 authored smoke cases but
+made a false block of recovery support and missed adversarial adult text;
+Smol did not reliably follow the output format. This small set does not
+establish real-world accuracy. Qwen also runs offline in a separate diagnostic
+MV3 extension, taking roughly 6–8 seconds per short example in single-threaded
+WASM. The text model is not bundled with or enabled in the production blocker.
 Text-only filtering cannot assess image-only or video-only material, and page
 text is available only after a response loads. Keep these limitations visible
-when enabling the optional feature. No AI filter is implemented or advertised
-as working until runtime and classification checks pass.
+when enabling any future automatic filtering. Runtime checks alone do not
+qualify the experimental model for blocking pages.
 
 Keep all custom changes in this personal fork. Do not submit them upstream.

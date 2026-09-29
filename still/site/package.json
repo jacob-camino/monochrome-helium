@@ -1,0 +1,9 @@
+{
+  "name": "still-download-page",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/releases.test.mjs",
+    "test:browser": "node tests/browser.mjs"
+  }
+}

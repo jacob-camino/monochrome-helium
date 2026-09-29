@@ -1,0 +1,10 @@
+{
+  "name": "still-local-text-filter-evaluation",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Offline evaluation of small language models for Still's optional page classifier",
+  "dependencies": {
+    "@huggingface/transformers": "4.3.0"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "still-text-filter-browser-prototype",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node --test tests/unit.test.mjs",
+    "test:runtime": "node tests/runtime.mjs",
+    "test:failure": "node tests/failure.mjs"
+  },
+  "devDependencies": {"playwright-core": "1.61.1"}
+}

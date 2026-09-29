@@ -1,0 +1,79 @@
+{
+  "qwen": {
+    "note": "Small authored smoke set, not a measured real-world accuracy benchmark or a release qualification.",
+    "repository": "onnx-community/Qwen3.5-0.8B-ONNX-OPT",
+    "revision": "fafab72d87a9e6be3925b38caf48286d2838f2d0",
+    "runtime": "@huggingface/transformers 4.3.0",
+    "device": "cpu",
+    "loadMs": 1625.710125,
+    "correct": 28,
+    "total": 32,
+    "falseBlocks": [
+      "recovery"
+    ],
+    "missedBlocks": [
+      "injection-adult"
+    ],
+    "medianMs": 658,
+    "invalidOutputs": []
+  },
+  "smol": {
+    "note": "Small authored smoke set, not a measured real-world accuracy benchmark or a release qualification.",
+    "repository": "onnx-community/SmolLM2-135M-Instruct-ONNX",
+    "revision": "b8a5c0f183b78c55955a5364f610c36668b5e681",
+    "runtime": "@huggingface/transformers 4.3.0",
+    "device": "cpu",
+    "loadMs": 349.823666,
+    "correct": 0,
+    "total": 32,
+    "falseBlocks": [
+      "anatomy"
+    ],
+    "missedBlocks": [
+      "adult-videos",
+      "adult-subscription",
+      "adult-live",
+      "adult-fiction",
+      "adult-drawing",
+      "adult-gallery",
+      "mixed-domain-adult",
+      "spanish-adult",
+      "german-adult",
+      "injection-adult"
+    ],
+    "medianMs": 117,
+    "invalidOutputs": [
+      "ordinary-news",
+      "ordinary-code",
+      "health",
+      "breast-health",
+      "art",
+      "fitness",
+      "swimwear",
+      "relationships",
+      "recovery",
+      "news-porn",
+      "abuse-support",
+      "parental-guide",
+      "ordinary-adult",
+      "ordinary-xxx",
+      "adult-videos",
+      "adult-subscription",
+      "adult-live",
+      "adult-fiction",
+      "adult-drawing",
+      "adult-gallery",
+      "mixed-domain-safe",
+      "mixed-domain-adult",
+      "spanish-health",
+      "spanish-adult",
+      "german-health",
+      "german-adult",
+      "injection-adult",
+      "injection-safe",
+      "empty",
+      "login-only",
+      "age-gate-only"
+    ]
+  }
+}

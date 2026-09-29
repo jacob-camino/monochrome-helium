@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090a0c">
+  <meta name="color-scheme" content="dark">
+  <title>Still — a quieter browser</title>
+  <meta name="description" content="Still is a minimal browser built on Helium. Grayscale by default, an Ink-dark interface, a left tab rail, and local website controls.">
+  <link rel="canonical" href="https://jacobalbertschmidt.com/still/">
+  <link rel="icon" href="/still/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/still/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="page">
+    <nav class="site-nav" aria-label="Page navigation">
+      <a class="home" href="/">Jacob Schmidt</a>
+      <a href="#downloads">Downloads <span aria-hidden="true">↓</span></a>
+    </nav>
+    <main id="main">
+      <header class="hero">
+        <p class="eyebrow">A quieter browser</p>
+        <h1>still<span class="period">.</span></h1>
+        <p class="intro">A little more room for what you came to do.</p>
+        <p class="description">Built on Helium, with an Ink-dark interface, tabs at the left, and grayscale by default. Bring back color when you need it.</p>
+        <p id="development-status" class="development">In development · preparing the first release</p>
+      </header>
+
+      <figure class="preview">
+        <img src="/still/interface-preview.png" alt="Still's Margin interface study: a narrow left tab rail beside a grayscale reading page." width="1440" height="1100" fetchpriority="high">
+        <figcaption><span>Interface preview</span><span>Margin · Ink · design study</span></figcaption>
+      </figure>
+
+      <section class="features" aria-label="Still features">
+        <article><span class="feature-number" aria-hidden="true">01</span><h2>Grayscale, by default</h2><p>A monochrome page with color available from a quiet control that appears on hover or keyboard focus.</p></article>
+        <article><span class="feature-number" aria-hidden="true">02</span><h2>Tabs at the edge</h2><p>A slim left rail with larger tab targets. The page gets the rest of the space.</p></article>
+        <article><span class="feature-number" aria-hidden="true">03</span><h2>Your own boundaries</h2><p>Manage blocked websites and allowed exceptions in one place, stored on your device.</p></article>
+      </section>
+
+      <section id="downloads" class="downloads" aria-labelledby="download-heading">
+        <div class="section-heading"><h2 id="download-heading">Make a little space.</h2><p>Still for your desktop.</p></div>
+        <p id="release-status" class="release-status" role="status" aria-live="polite">Checking for published builds…</p>
+        <div class="platforms">
+          <article class="platform" data-platform="macos"><h3>macOS</h3><div class="platform-content"><p class="pending">Build information pending</p></div></article>
+          <article class="platform" data-platform="windows"><h3>Windows</h3><div class="platform-content"><p class="pending">Build information pending</p></div></article>
+          <article class="platform" data-platform="linux"><h3>Linux</h3><div class="platform-content"><p class="pending">Build information pending</p></div></article>
+        </div>
+        <noscript><p class="release-status">JavaScript is needed to check the release manifest. No download links are shown without published release metadata.</p></noscript>
+      </section>
+    </main>
+    <footer><span>Still is a fork of Helium. <a href="https://github.com/jacob-camino/monochrome-helium/tree/still">Source code</a></span><a href="/">Made by Jacob Schmidt</a></footer>
+  </div>
+  <script type="module" src="/still/downloads.mjs"></script>
+</body>
+</html>
