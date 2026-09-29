@@ -2,6 +2,7 @@
 """Apply Still's small patch series after upstream Helium source preparation."""
 
 import argparse
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -11,12 +12,16 @@ PATCHES = [ROOT / "still/patches" / name for name in (
     "001-ink-margin-grayscale.patch",
     "002-still-macos-identity.patch",
     "003-local-blocking.patch",
+    "004-product-name.patch",
 )]
 
 
 def git(source, *args, check=True):
+    # Extracted Chromium trees may have no .git. Do not let Git discover the
+    # wrapper repository and silently interpret these paths from its root.
+    environment = {**os.environ, "GIT_CEILING_DIRECTORIES": str(source.parent)}
     return subprocess.run(["git", "-C", str(source), "apply", *map(str, args)],
-                          check=check, text=True, capture_output=True)
+                          check=check, text=True, capture_output=True, env=environment)
 
 
 def main():
