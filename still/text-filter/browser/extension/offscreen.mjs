@@ -14,32 +14,47 @@ function terminate(reason) {
   }
 }
 
+function createWorker(singleThread = false) {
+  const url = chrome.runtime.getURL('worker.mjs') + (singleThread ? '?single-thread' : '');
+  worker = new Worker(url, {type: 'module'});
+  worker.onerror = event => {
+    const detail = event.message;
+    const reply = pending?.respond;
+    if (pending) clearTimeout(pending.timer);
+    pending = undefined;
+    terminate('worker_error');
+    reply?.(unknown('worker_error', detail));
+  };
+  worker.onmessage = ({data}) => {
+    if (!pending || data.id !== pending.id) return;
+    if (data.retrySingleThread && !pending.retried) {
+      // A fresh worker avoids reusing a failed ONNX backend. Keep the original
+      // job deadline, consent cancellation path, and one-inference limit.
+      worker.terminate();
+      pending.retried = true;
+      pending.fallbackReason = data.result.detail || data.result.reason;
+      createWorker(true);
+      worker.postMessage({id: pending.id, page: pending.page});
+      return;
+    }
+    const {respond, timer} = pending;
+    const fallbackReason = pending.fallbackReason;
+    clearTimeout(timer);
+    pending = undefined;
+    respond(fallbackReason ? {...data.result, fallbackReason} : data.result);
+    if (data.result.reason === 'inference_error') terminate('inference_error');
+    else idleTimer = setTimeout(() => terminate('idle'), IDLE_MS);
+  };
+}
+
 function classify(page, respond) {
   if (pending) { respond(unknown('busy')); return; }
   clearTimeout(idleTimer);
-  if (!worker) {
-    worker = new Worker(chrome.runtime.getURL('worker.mjs'), {type: 'module'});
-    worker.onerror = event => {
-      const detail = event.message;
-      const reply = pending?.respond;
-      if (pending) clearTimeout(pending.timer);
-      pending = undefined;
-      terminate('worker_error');
-      reply?.(unknown('worker_error', detail));
-    };
-    worker.onmessage = ({data}) => {
-      if (!pending || data.id !== pending.id) return;
-      const {respond, timer} = pending;
-      clearTimeout(timer);
-      pending = undefined;
-      respond(data.result);
-      if (data.result.reason === 'inference_error') terminate('inference_error');
-      else idleTimer = setTimeout(() => terminate('idle'), IDLE_MS);
-    };
-  }
+  if (!worker) createWorker();
   const id = crypto.randomUUID();
-  pending = {id, respond, timer: setTimeout(() => terminate('timeout'), DEADLINE_MS)};
-  worker.postMessage({id, page: normalizePage(page)});
+  pending = {id, respond, page: normalizePage(page),
+    timer: setTimeout(() => terminate('timeout'), DEADLINE_MS)};
+  worker.postMessage({id, page: pending.page});
 }
 
 chrome.runtime.onMessage.addListener((message, sender, respond) => {

@@ -1,7 +1,10 @@
 // Only the repository's authored cases and a synthetic DOM privacy fixture.
 import assert from 'node:assert/strict';
-import {mkdtemp, readFile, rm, mkdir, writeFile} from 'node:fs/promises';
-import {tmpdir} from 'node:os';
+import {cp, mkdtemp, readFile, rm, mkdir, writeFile} from 'node:fs/promises';
+import {constants} from 'node:fs';
+import {tmpdir, loadavg, cpus, totalmem} from 'node:os';
+import {execFile} from 'node:child_process';
+import {promisify} from 'node:util';
 import {join} from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {extractPage} from '../extension/extract.mjs';
@@ -9,14 +12,62 @@ const runtime = process.env.STILL_PLAYWRIGHT
   ? await import(pathToFileURL(process.env.STILL_PLAYWRIGHT)) : await import('playwright-core');
 const {chromium} = runtime;
 const alias = process.argv[2] || 'qwen';
+const runtimeMode = process.argv[3] || 'wasm1';
+const missingAccelerator = process.argv[4] === 'missing-accelerator';
 const binary = process.env.STILL_CHROMIUM;
 if (!binary) throw new Error('Set STILL_CHROMIUM to Chrome for Testing.');
-if (!['qwen', 'smol'].includes(alias)) throw new Error('usage: node tests/runtime.mjs qwen|smol');
-const extension = fileURLToPath(new URL('../dist/' + alias, import.meta.url));
+if (!['qwen', 'smol'].includes(alias) || !['wasm1', 'wasm4', 'webgpu'].includes(runtimeMode)) {
+  throw new Error('usage: node tests/runtime.mjs qwen|smol [wasm1|wasm4|webgpu]');
+}
+const bundle = alias + (runtimeMode === 'wasm1' ? '' : '-' + runtimeMode);
+let extension = fileURLToPath(new URL('../dist/' + bundle, import.meta.url));
 const cases = JSON.parse(await readFile(new URL('../../cases.json', import.meta.url)));
 const profile = await mkdtemp(join(tmpdir(), 'still-local-text-'));
+if (missingAccelerator) {
+  assert.equal(runtimeMode, 'webgpu', 'missing-accelerator only supports the WebGPU bundle');
+  // Omit the local GPU factory only. The real model and WASM fallback remain
+  // present; the application must recover without a download or changed CSP.
+  const source = extension;
+  extension = join(profile, 'extension');
+  await cp(source, extension, {recursive: true, mode: constants.COPYFILE_FICLONE,
+    filter: path => !path.endsWith('/ort-wasm-simd-threaded.asyncify.mjs')});
+}
 let context;
-const report = {alias, experimental: true, sandboxEnabled: true, offline: true, cases: [], checks: []};
+const report = {alias, runtimeMode, missingAccelerator, experimental: true, sandboxEnabled: true, offline: true,
+  measuredAt: new Date().toISOString(), environment: {platform: process.platform,
+    arch: process.arch, logicalCpus: cpus().length, totalMemoryBytes: totalmem(), loadAverage: loadavg()},
+  cases: [], checks: []};
+const run = promisify(execFile);
+let memoryTimer, memorySampling = false;
+// Resident sizes include every process belonging to this temporary browser.
+// Shared pages may be counted more than once; this is not model-only memory.
+async function sampleMemory() {
+  if (memorySampling) return;
+  memorySampling = true;
+  try {
+    const {stdout} = await run('ps', ['-axo', 'pid,ppid,rss,command']);
+    const rows = stdout.split('\n').map(line => {
+      const match = line.match(/^\s*(\d+)\s+(\d+)\s+(\d+)\s+(.*)$/);
+      return match && {pid: +match[1], parent: +match[2], bytes: +match[3] * 1024,
+        command: match[4]};
+    }).filter(Boolean);
+    const ids = new Set(rows.filter(row => row.command.includes('--user-data-dir=' + profile))
+      .map(row => row.pid));
+    let previous;
+    do {
+      previous = ids.size;
+      for (const row of rows) if (ids.has(row.parent)) ids.add(row.pid);
+    } while (ids.size > previous);
+    const bytes = rows.filter(row => ids.has(row.pid)).reduce((sum, row) => sum + row.bytes, 0);
+    if (bytes) {
+      report.memory ??= {metric: 'sum of browser-process RSS, shared pages may be double-counted',
+        samplingIntervalMs: 500, beforeModelBytes: bytes, peakBytes: bytes, samples: 0};
+      report.memory.peakBytes = Math.max(report.memory.peakBytes, bytes);
+      report.memory.samples++;
+    }
+  } catch (error) { report.memoryError = error.message; }
+  finally { memorySampling = false; }
+}
 try {
   context = await chromium.launchPersistentContext(profile, {
     executablePath: binary, headless: true, chromiumSandbox: true,
@@ -38,6 +89,8 @@ try {
   });
   await panel.goto('chrome-extension://' + extensionId + '/panel.html');
   await panel.waitForFunction(() => !!document.querySelector('#enabled'));
+  await sampleMemory();
+  memoryTimer = setInterval(sampleMemory, 500);
   const send = message => panel.evaluate(message =>
     chrome.runtime.sendMessage({target: 'prototype', ...message}), message);
   assert.equal((await send({type: 'status'})).enabled, false);
@@ -81,6 +134,18 @@ try {
   console.log(JSON.stringify(report.cases.at(-1)));
   assert.equal(first.action, 'none');
   assert.equal(first.reason, undefined, 'real local inference failed: ' + JSON.stringify(first));
+  assert.equal(first.requestedRuntime, runtimeMode);
+  if (runtimeMode === 'wasm4' && !first.fallbackReason) {
+    assert.equal(first.crossOriginIsolated, true);
+    assert(first.threads > 1 && first.threads <= 4);
+  }
+  if (runtimeMode === 'webgpu' && !first.fallbackReason) assert.equal(first.device, 'webgpu');
+  if (missingAccelerator) {
+    assert.equal(first.device, 'wasm');
+    assert.equal(first.threads, 1);
+    assert(first.fallbackReason, 'accelerator failure must be reported');
+    report.checks.push('missing local GPU factory recovers through a fresh single-thread WASM worker');
+  }
   for (const id of chosen.slice(1)) {
     const fixture = cases.find(c => c.id === id);
     const result = await send({type: 'classify', page: fixture});
@@ -91,7 +156,7 @@ try {
   }
   assert.equal((await send({type: 'classify', page: cases.find(c => c.id === 'empty')})).reason,
     'insufficient_evidence');
-  report.checks.push('local WASM model completes; one active inference; blank input fails open');
+  report.checks.push('local model completes; requested runtime or explicit WASM fallback; one active inference; blank input fails open');
   const cancelled = await panel.evaluate(async page => {
     const pending = chrome.runtime.sendMessage({target: 'prototype', type: 'classify', page});
     await new Promise(resolve => setTimeout(resolve, 50));
@@ -127,10 +192,13 @@ try {
   report.error = String(error.stack || error);
   process.exitCode = 1;
 } finally {
+  clearInterval(memoryTimer);
+  await sampleMemory();
   if (context) await context.close();
   await rm(profile, {recursive: true, force: true});
   const results = new URL('../results/', import.meta.url);
   await mkdir(results, {recursive: true});
-  await writeFile(new URL(alias + '-runtime.json', results), JSON.stringify(report, null, 2) + '\n');
+  await writeFile(new URL(bundle + (missingAccelerator ? '-fallback' : '') + '-runtime.json', results),
+    JSON.stringify(report, null, 2) + '\n');
   console.log(JSON.stringify(report, null, 2));
 }
